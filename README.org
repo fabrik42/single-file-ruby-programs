@@ -1,0 +1,471 @@
+#+TITLE: Single File Ruby Programs
+#+AUTHOR: Christian Bäuerlein
+#+STARTUP: indent content hidestars
+#+OPTIONS: H:4 toc:nil ^:nil
+#+OPTIONS: reveal_center:t reveal_progress:t reveal_history:nil reveal_control:t
+#+OPTIONS: reveal_rolling_links:t reveal_keyboard:t reveal_overview:t num:nil
+#+REVEAL_THEME: solarized
+#+REVEAL_TRANS: fade
+#+REVEAL_PLUGINS: (notes highlight markdown)
+#+REVEAL_TITLE_SLIDE_TEMPLATE: <h1>%t</h1> <h4>%a</h4>
+#+REVEAL_ROOT: ./reveal.js-3.8.0
+#+REVEAL_HLEVEL: 1
+
+* Welcome!
+** The Lost Art of Single File Ruby Programs
+A loose collection of Ruby fun facts and examples to organize your code in a single file.
+
+Let's have some fun with Ruby!
+#+begin_notes
+This talk is based on the time when I learned Ruby, around 2008
+Ruby is a very concise language, so it actually made sense that
+you put a lot of stuff in one file, as it actually might work out fine.
+
+I was always kind of fascinated by this
+
+This talk is a loose collection of ruby fun facts that you might or might not know
+together with some practical examples
+#+end_notes
+* Code & tests in one file
+** Ruby Magic Constants
+There is ~~$0~.
+
+#+begin_quote
+Contains the name of the file containing the Ruby script being executed.
+#+end_quote
+
+Source: [[https://ruby-doc.org/docs/ruby-doc-bundle/Manual/man-1.4/variable.html#zero][Pre-defined variables and constants]]
+** The source file
+#+begin_src ruby
+def greet(name)
+  "Hello #{name}!"
+end
+
+# this will only run if the script was the main
+# not load'd or require'd
+if __FILE__ == $0
+  require "test/unit/assertions"
+  include Test::Unit::Assertions
+
+  assert_equal 'Hello Ruby', greet('Ruby'), "greet function should return 'Hello Ruby!'"
+end
+#+end_src
+** When called directly
+#+begin_src sh
+$ ruby code_and_test.rb
+ greet function should return 'Hello Ruby!'. (Test::Unit::AssertionFailedError)
+<"Hello Ruby"> expected but was
+<"Hello Ruby!">.
+
+diff:
+- Hello Ruby
++ Hello Ruby!
+?
+#+end_src
+** When required
+#+begin_src ruby
+require './code_and_test.rb'
+
+puts greet "Christian"
+#+end_src
+
+#+begin_src sh
+$ ruby code_and_test_usage.rb
+Hello Christian!
+#+end_src
+** You may know this from Python
+#+begin_src python
+def hello():
+    print("Hello world, this script was called!")
+
+if __name__ == '__main__':
+    hello()
+#+end_src
+
+Source: [[https://stackoverflow.com/questions/28478234/python-define-unit-test-classes-together-with-code][Python Define Unit Test Classes Together with Code]]
+* A webserver in one file?
+** My life before Ruby
+Before Ruby, my favorite web framework was [[https://github.com/bcit-ci/CodeIgniter/tree/432019cdc654fad0b866a2b9ea7483f233ec811d][CodeIgniter]].
+
+Security first: One index.html file in *EVERY* folder.
+** Sinatra 0.6
+#+begin_src ruby
+sudo gem install sinatra
+#+end_src
+
+#+begin_notes
+sudo, because bundler was not invented yet ;)
+#+end_notes
+
+#+REVEAL: split
+
+#+begin_src ruby
+require "rubygems"
+require "sinatra"
+
+get '/' do
+ "Hello World"
+end
+#+end_src
+
+Awesome!!!
+
+#+REVEAL: split
+
+#+begin_src sh
+ruby myapp.rb
+#+end_src
+** Templates: Uncool way
+"You can do this too but it's not as cool" - Sinatra Readme
+
+#+begin_src ruby
+template :index do
+  '%div.title Hello World!'
+end
+#+end_src
+** Templates
+As documented in the [[https://github.com/bmizerany/sinatra/tree/d2e256a957c6f3ddb65a004c5759f54e74240272#in-file-templates-][README.rdoc]] this was the cool way to do it.
+
+#+begin_src ruby
+get '/' do
+  haml :index
+end
+
+use_in_file_templates!
+
+__END__
+
+@@ layout
+X
+= yield
+X
+
+@@ index
+%div.title Hello world!!!!!
+#+end_src
+* A little Ruby history
+** Ruby is a better Perl
+Why the name 'Ruby'?
+
+#+begin_quote
+Influenced by Perl, Matz wanted to use a jewel name for his new language, so he named Ruby after a colleague's birthstone.
+#+end_quote
+
+Source: [[https://ruby-doc.org/docs/ruby-doc-bundle/FAQ/FAQ.html][The Ruby Language FAQ]]
+** Perl's legacy
+Ruby took a lot of things from Pearl.
+
+Today we will learn about:
+
+- Keywords
+- Command line flags
+** Let's start with Perldata
+Perl has two special literals:
+- ~__END__~ - Indicates the logical end of the script before the actual end of file. Any following text is ignored.
+- ~__DATA__~ - A filehandle that points to everything that comes after ~__END__~.
+
+Source: [[https://perldoc.perl.org/perldata.html#Special-Literals][perldata - perldoc.perl.org]]
+* The ~__END__~ and =DATA= keywords
+#+begin_quote
+Denotes the end of the regular source code section of a program file. Lines below ~__END__~ will not be executed.
+#+end_quote
+
+#+REVEAL: split
+
+#+begin_quote
+Those lines will be available via the special filehandle ~DATA~
+#+end_quote
+
+Source: [[https://ruby-doc.org/docs/keywords/1.9/Object.html#method-i-__END__][Class: Object]]
+** Simple Example
+#+begin_src ruby
+DATA.each_line do |line|
+  puts line
+end
+
+__END__
+Doom
+Quake
+Diablo
+#+end_src
+** ERB template and code in one file
+#+begin_src ruby
+require 'erb'
+
+time = Time.now
+renderer = ERB.new(DATA.read)
+puts renderer.result()
+
+__END__
+The current time is <%= time %>.
+#+end_src
+** Explained: Sinatra Style Multiple Templates in File
+#+begin_src ruby
+get '/' do
+  haml :index
+end
+
+use_in_file_templates!
+
+__END__
+
+@@ layout
+X
+= yield
+X
+
+@@ index
+%div.title Hello world!!!!!
+#+end_src
+
+#+REVEAL: split
+
+#+begin_src ruby
+File.read(caller.first.split(":").first).split("__END__", 2).last
+#+end_src
+
+Source: [[https://www.honeybadger.io/blog/data-and-end-in-ruby/][Mixing code and data in Ruby]]
+** PSA: PHP can do it as well
+#+begin_src php
+// open self
+$fp = fopen(__FILE__, 'rb');
+// seek file pointer to data
+//__COMPILER_HALT_OFFSET__ will return
+//the point after __halt_compiler();
+fseek($fp, __COMPILER_HALT_OFFSET__);
+// and output it
+$unpacked = gzinflate(stream_get_contents($fp));
+__halt_compiler();
+//now here... all the binary gzdeflate already items!!!
+#+end_src
+
+Source: [[https://www.php.net/manual/en/function.halt-compiler.php][PHP: __halt_compiler - Manual]]
+Example: [[http://web.archive.org/web/20101012214224/http://mgccl.com/2007/01/04/halt-compiler-make-install-files-for-php-smaller][__halt_compiler(), make install files for PHP smaller]]
+* Bundler inline
+Fun fact: You don't need a =Gemfile= to use bundler!
+
+Useful for scripts in your =/utils= folder that you only use once a year.
+
+Source: [[https://bundler.io/guides/bundler_in_a_single_file_ruby_script.html][How to use Bundler in a single-file Ruby script]]
+** Inline HTTParty
+#+begin_src ruby
+require 'bundler/inline'
+
+gemfile do
+  gem 'httparty'
+end
+
+puts HTTParty.get('https://www.boredapi.com/api/activity')
+#+end_src
+** Inline Minitest
+#+begin_src ruby
+require 'bundler/inline'
+
+gemfile do
+  gem 'minitest', require: false
+end
+
+require 'minitest/autorun'
+
+class MyTest < Minitest::Test
+  def test_should_be_true
+    assert_equal true, true
+  end
+end
+#+end_src
+* Advanced Example: Download iCal to org
+#+ATTR_REVEAL: :frag (appear)
+- Install Dependencies
+- Do stuff (download calendar events)
+- Render to ERb template
+
+Source: [[https://github.com/defsrc/ical-to-org/blob/master/ical_to_org.rb][ical_to_org.rb]]
+* =BEGIN= and =END= Keywords
+Yes, this is taken from Perl as well.
+
+** Definition
+#+begin_quote
+BEGIN defines a block that is run before any other code in the current file. It is typically used in one-liners with ruby -e.
+
+Similarly END defines a block that is run after any other code.
+#+end_quote
+
+Source: [[https://docs.ruby-lang.org/en/2.2.0/syntax/miscellaneous_rdoc.html#label-BEGIN+and+END][Documentation for Ruby 2.2.0]]
+** Example
+#+begin_src ruby
+END { puts 3 }
+BEGIN { puts 1 }
+puts 2
+#+end_src
+
+#+begin_src sh
+ruby begin.rb
+1
+2
+3
+#+end_src
+* Introducing LRuby
+Logging Ruby - The Ruby alias for the forgetful scripter
+Logging Ruby!
+
+Only Feature:
+No more scrolling through your terminal...
+Logs the output of a script to the script itself!
+** Let's try this out
+#+begin_src sh
+cat log_results/hello_world.rb
+#+end_src
+
+#+begin_src sh
+ruby log_results/hello_world.rb
+#+end_src
+
+** Introducing: LRuby
+#+begin_src sh
+lruby log_results/hello_world.rb
+#+end_src
+
+#+begin_src sh
+cat log_results/hello_world.rb
+#+end_src
+** How does it work?
+#+begin_src sh
+which lruby
+#+end_src
+
+Let's check out the source of [[file:lruby.rb::BEGIN {][LRuby lruby.rb]]
+* The Garbage Flag
+Aaaaand back to Perl!
+** Perlrun
+#+begin_src sh
+perl -x
+#+end_src
+
+#+begin_quote
+Leading garbage will be discarded until the first line that starts with #! and contains the string "perl".
+#+end_quote
+
+Source: [[https://perldoc.perl.org/perlrun.html][perlrun - perldoc.perl.org]]
+** But... Why?
+#+begin_quote
+Tells Perl that the program is embedded in a larger chunk of unrelated text, such as in a *mail message*.
+#+end_quote
+** And in Ruby..
+#+begin_src sh
+ruby -x
+#+end_src
+
+#+begin_quote
+Tells Ruby that the script is embedded in a message. Leading garbage will be discarded until the first that starts with "#!" and contains string "ruby".
+#+end_quote
+
+Source: [[https://ruby-doc.org/docs/ruby-doc-bundle/Manual/man-1.4/options.html][Ruby Docs Command line Options]]
+** Example
+#+begin_src ruby
+Hello dear friend,
+this is a mail message. Please execute it with your ruby interpreter.
+
+Thanks,
+a random stranger
+#! hahaha this is ruby now
+puts "Hello World"
+#+end_src
+
+#+begin_src sh
+ruby -x email.eml
+#+end_src
+* A self-animating GIF
+This is not an animated gif, but a gif that animates itself.
+** Let's talk about GIFs
+[[./assets/bunny.gif]]
+*** A GIF file consists of blocks
+[[./assets/gif_file_stream.gif]]
+*** Example
+[[./assets/gif_file_stream2.png]]
+*** Terminator Byte
+The trailer block indicates when you've reached the end of the file. It is always a byte with a value of =3B=.
+
+Source: [[http://giflib.sourceforge.net/whatsinagif/bits_and_bytes.html][What's In A GIF]]
+** Soooo now we know that..
+#+ATTR_REVEAL: :frag (appear)
+- GIFs are nice
+- GIFs always end with the same terminator byte
+- Ruby is nice
+- Ruby can start with a defined start line
+- Nice.
+** A self-animating GIF
+This is not an animated gif, but a gif that animates itself.
+
+#+ATTR_REVEAL: :frag (appear)
+- One file
+- Upper half is a GIF
+- Lower half is Ruby code
+- File rewrites itself!
+- Profit!
+** Source Code
+Let's check out the [[file:rbgif/rbgif.gif::#!->let's go ruby!][rbgif.gif source code]] together!
+** LIVE DEMO!
+#+begin_src sh
+while 1; do cd ~/Dropbox/slides/single-file-ruby-programs/rbgif; time ruby -x ./rbgif.gif; sleep 0.1; done
+#+end_src
+* One more thing...
+#+begin_src sh
+#!/bin/sh
+
+echo This is bash
+i=12
+echo $i
+
+perl - $i <<'__HERE__'
+my $i = shift;
+print "This is perl\n";
+print ++$i . "\n";
+__HERE__
+
+echo This is bash again
+echo $i
+#+end_src
+
+Source: [[https://www.perlmonks.org/?replies=1;displaytype=print;node_id=46168][perl script inside a shell script]]
+** Perlmonks.org 2000 Testimonials
+#+ATTR_REVEAL: :frag (appear)
+- "Ain't that fun?" - dchetlin
+- "It's strange and terrible and I'm not sure how to get something out of the perl part, but this sort of works" - eg
+- "This, on the other hand is just ... just .. well, I don't know. Not right. Not even wrong. It just is." - Blue
+* Summary
+** Ruby is fun!
+** Single File Ruby Programs
+- Code & Tests
+- Dependencies & Code
+- Data & Code
+- Code & Data
+- Code & Output
+
+Try it out for fun and profit!
+* Thanks!
+Questions?
+
+Christian Bäuerlein
+[[https://twitter.com/fabrik42][@fabrik42]]
+* Appendix :noexport:
+** Rails + Migrations in 1 File
+- [[https://christoph.luppri.ch/articles/rails/single-file-rails-applications-for-fun-and-bug-reporting/][Single file Rails applications (for fun and bug reporting) | Christoph Lupprich]]
+- [[https://www.amberbit.com/blog/2014/2/14/putting-ruby-on-rails-on-a-diet/][Putting Ruby on Rails on a diet]]
+- [[https://github.com/c-hive/basics/blob/884229e117a13f0bcbdc8aa34047905726713527/inline-activerecord/inline-activerecord.rb][basics/inline-activerecord.rb at 884229e117a13f0bcbdc8aa34047905726713527]]
+- [[https://github.com/teamon/minirails][teamon/minirails: Smallest Rails (and other) Apps]]
+- [[http://thesmallestrailsapp.com/][The Smallest Rails App]]
+- [[https://github.com/artemave/thesmallestrailsapp.com][artemave/thesmallestrailsapp.com]]
+- [[https://www.tweetegy.com/2012/12/dissecting-thesmallestrailsapp-com-smallest-rails-app-line-3/][Dissecting thesmallestrailsapp.com (Smallest Rails App: line 3) · Tweetegy]]
+- [[https://stackoverflow.com/questions/58817733/how-to-create-an-inline-minimal-rails-app][How to create an inline / minimal Rails app? - Stack Overflow]]
+** More ideas...
+- Guestbook
+- [[http://whatisthor.com/][Thor]] command line tools
+- Advent of Code template using =__DATA__= for input
+- HTML docs and code in one file?
+- Awesome ascii art readme
+** Links
+- [[https://ruby-doc.org/docs/ruby-doc-bundle/Manual/man-1.4/variable.html#argv][Pre-defined variables and constants]]
+- [[https://docs.ruby-lang.org/en/2.2.0/keywords_rdoc.html][keywords - Documentation for Ruby 2.2.0]]
+- [[https://idiosyncratic-ruby.com/5-constant-shadows.html][Idiosyncratic Ruby: Constant Shadows]]
+- [[https://idiosyncratic-ruby.com/22-literate-ruby.html][Idiosyncratic Ruby: Literate Ruby]]
+- [[https://www.perlmonks.org/?node_id=253886][perl -x to test while developing]]

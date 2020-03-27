@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Single File Ruby Programs</title>
+<meta name="author" content="Christian Bäuerlein"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js-3.8.0/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js-3.8.0/css/theme/solarized.css" id="theme"/>
+<link rel="stylesheet" href="./reveal.js-3.8.0/lib/css/zenburn.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js-3.8.0/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1 class="title">Single File Ruby Programs</h1><h2 class="author">Christian Bäuerlein</h2><p class="date">Created: 2020-03-27 Fri 10:45</p>
+</section>
+
+<section>
+<section id="slide-org1b58b7e">
+<h2 id="org1b58b7e">Welcome!</h2>
+<div class="outline-text-2" id="text-org1b58b7e">
+</div>
+</section>
+<section id="slide-org90b6367">
+<h3 id="org90b6367">The Lost Art of Single File Ruby Programs</h3>
+<p>
+A loose collection of Ruby fun facts and examples to organize your code in a single file.
+</p>
+
+<p>
+Let's have some fun with Ruby!
+</p>
+<aside class="notes">
+<p>
+This talk is based on the time when I learned Ruby, around 2008
+Ruby is a very concise language, so it actually made sense that
+you put a lot of stuff in one file, as it actually might work out fine.
+</p>
+
+<p>
+I was always kind of fascinated by this
+</p>
+
+<p>
+This talk is a loose collection of ruby fun facts that you might or might not know
+together with some practical examples
+</p>
+
+</aside>
+</section>
+</section>
+<section>
+<section id="slide-org75759a1">
+<h2 id="org75759a1">Code &amp; tests in one file</h2>
+<div class="outline-text-2" id="text-org75759a1">
+</div>
+</section>
+<section id="slide-orgffbd39f">
+<h3 id="orgffbd39f">Ruby Magic Constants</h3>
+<p>
+There is <code>~$0</code>.
+</p>
+
+<blockquote>
+<p>
+Contains the name of the file containing the Ruby script being executed.
+</p>
+</blockquote>
+
+<p>
+Source: <a href="https://ruby-doc.org/docs/ruby-doc-bundle/Manual/man-1.4/variable.html#zero">Pre-defined variables and constants</a>
+</p>
+</section>
+<section id="slide-org57bd24f">
+<h3 id="org57bd24f">The source file</h3>
+<div class="org-src-container">
+
+<pre><code class=" ruby" >def greet(name)
+  "Hello #{name}!"
+end
+
+# this will only run if the script was the main
+# not load'd or require'd
+if __FILE__ == $0
+  require "test/unit/assertions"
+  include Test::Unit::Assertions
+
+  assert_equal 'Hello Ruby', greet('Ruby'), "greet function should return 'Hello Ruby!'"
+end
+</code></pre>
+</div>
+</section>
+<section id="slide-org4afbe34">
+<h3 id="org4afbe34">When called directly</h3>
+<div class="org-src-container">
+
+<pre><code class=" sh" >$ ruby code_and_test.rb
+ greet function should return 'Hello Ruby!'. (Test::Unit::AssertionFailedError)
+&lt;"Hello Ruby"&gt; expected but was
+&lt;"Hello Ruby!"&gt;.
+
+diff:
+- Hello Ruby
++ Hello Ruby!
+?
+</code></pre>
+</div>
+</section>
+<section id="slide-org85af0b8">
+<h3 id="org85af0b8">When required</h3>
+<div class="org-src-container">
+
+<pre><code class=" ruby" >require './code_and_test.rb'
+
+puts greet "Christian"
+</code></pre>
+</div>
+
+<div class="org-src-container">
+
+<pre><code class=" sh" >$ ruby code_and_test_usage.rb
+Hello Christian!
+</code></pre>
+</div>
+</section>
+<section id="slide-org9e03e6b">
+<h3 id="org9e03e6b">You may know this from Python</h3>
+<div class="org-src-container">
+
+<pre><code class=" python" >def hello():
+    print("Hello world, this script was called!")
+
+if __name__ == '__main__':
+    hello()
+</code></pre>
+</div>
+
+<p>
+Source: <a href="https://stackoverflow.com/questions/28478234/python-define-unit-test-classes-together-with-code">Python Define Unit Test Classes Together with Code</a>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org88774a8">
+<h2 id="org88774a8">A webserver in one file?</h2>
+<div class="outline-text-2" id="text-org88774a8">
+</div>
+</section>
+<section id="slide-orgd0d7364">
+<h3 id="orgd0d7364">My life before Ruby</h3>
+<p>
+Before Ruby, my favorite web framework was <a href="https://github.com/bcit-ci/CodeIgniter/tree/432019cdc654fad0b866a2b9ea7483f233ec811d">CodeIgniter</a>.
+</p>
+
+<p>
+Security first: One index.html file in <b>EVERY</b> folder.
+</p>
+</section>
+<section id="slide-orgf0d4e7f">
+<h3 id="orgf0d4e7f">Sinatra 0.6</h3>
+<div class="org-src-container">
+
+<pre><code class=" ruby" >sudo gem install sinatra
+</code></pre>
+</div>
+
+<aside class="notes">
+<p>
+sudo, because bundler was not invented yet ;)
+</p>
+
+</aside>
+
+</section>
+<section>
+
+<div class="org-src-container">
+
+<pre><code class=" ruby" >require "rubygems"
+require "sinatra"
+
+get '/' do
+ "Hello World"
+end
+</code></pre>
+</div>
+
+<p>
+Awesome!!!
+</p>
+
+</section>
+<section>
+
+<div class="org-src-container">
+
+<pre><code class=" sh" >ruby myapp.rb
+</code></pre>
+</div>
+</section>
+<section id="slide-org24da8fc">
+<h3 id="org24da8fc">Templates: Uncool way</h3>
+<p>
+"You can do this too but it's not as cool" - Sinatra Readme
+</p>
+
+<div class="org-src-container">
+
+<pre><code class=" ruby" >template :index do
+  '%div.title Hello World!'
+end
+</code></pre>
+</div>
+</section>
+<section id="slide-org479f5dd">
+<h3 id="org479f5dd">Templates</h3>
+<p>
+As documented in the <a href="https://github.com/bmizerany/sinatra/tree/d2e256a957c6f3ddb65a004c5759f54e74240272#in-file-templates-">README.rdoc</a> this was the cool way to do it.
+</p>
+
+<div class="org-src-container">
+
+<pre><code class=" ruby" >get '/' do
+  haml :index
+end
+
+use_in_file_templates!
+
+__END__
+
+@@ layout
+X
+= yield
+X
+
+@@ index
+%div.title Hello world!!!!!
+</code></pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org4bfb30e">
+<h2 id="org4bfb30e">A little Ruby history</h2>
+<div class="outline-text-2" id="text-org4bfb30e">
+</div>
+</section>
+<section id="slide-org0487f05">
+<h3 id="org0487f05">Ruby is a better Perl</h3>
+<p>
+Why the name 'Ruby'?
+</p>
+
+<blockquote>
+<p>
+Influenced by Perl, Matz wanted to use a jewel name for his new language, so he named Ruby after a colleague's birthstone.
+</p>
+</blockquote>
+
+<p>
+Source: <a href="https://ruby-doc.org/docs/ruby-doc-bundle/FAQ/FAQ.html">The Ruby Language FAQ</a>
+</p>
+</section>
+<section id="slide-org1b86126">
+<h3 id="org1b86126">Perl's legacy</h3>
+<p>
+Ruby took a lot of things from Pearl.
+</p>
+
+<p>
+Today we will learn about:
+</p>
+
+<ul>
+<li>Keywords</li>
+<li>Command line flags</li>
+
+</ul>
+</section>
+<section id="slide-org033213d">
+<h3 id="org033213d">Let's start with Perldata</h3>
+<p>
+Perl has two special literals:
+</p>
+<ul>
+<li><code>__END__</code> - Indicates the logical end of the script before the actual end of file. Any following text is ignored.</li>
+<li><code>__DATA__</code> - A filehandle that points to everything that comes after <code>__END__</code>.</li>
+
+</ul>
+
+<p>
+Source: <a href="https://perldoc.perl.org/perldata.html#Special-Literals">perldata - perldoc.perl.org</a>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-orgb36c587">
+<h2 id="orgb36c587">The <code>__END__</code> and <code>DATA</code> keywords</h2>
+<blockquote>
+<p>
+Denotes the end of the regular source code section of a program file. Lines below <code>__END__</code> will not be executed.
+</p>
+</blockquote>
+
+</section>
+<section>
+
+<blockquote>
+<p>
+Those lines will be available via the special filehandle <code>DATA</code>
+</p>
+</blockquote>
+
+<p>
+Source: <a href="https://ruby-doc.org/docs/keywords/1.9/Object.html#method-i-__END__">Class: Object</a>
+</p>
+</section>
+<section id="slide-org7897b2a">
+<h3 id="org7897b2a">Simple Example</h3>
+<div class="org-src-container">
+
+<pre><code class=" ruby" >DATA.each_line do |line|
+  puts line
+end
+
+__END__
+Doom
+Quake
+Diablo
+</code></pre>
+</div>
+</section>
+<section id="slide-org7635847">
+<h3 id="org7635847">ERB template and code in one file</h3>
+<div class="org-src-container">
+
+<pre><code class=" ruby" >require 'erb'
+
+time = Time.now
+renderer = ERB.new(DATA.read)
+puts renderer.result()
+
+__END__
+The current time is &lt;%= time %&gt;.
+</code></pre>
+</div>
+</section>
+<section id="slide-orgb472f5f">
+<h3 id="orgb472f5f">Explained: Sinatra Style Multiple Templates in File</h3>
+<div class="org-src-container">
+
+<pre><code class=" ruby" >get '/' do
+  haml :index
+end
+
+use_in_file_templates!
+
+__END__
+
+@@ layout
+X
+= yield
+X
+
+@@ index
+%div.title Hello world!!!!!
+</code></pre>
+</div>
+
+</section>
+<section>
+
+<div class="org-src-container">
+
+<pre><code class=" ruby" >File.read(caller.first.split(":").first).split("__END__", 2).last
+</code></pre>
+</div>
+
+<p>
+Source: <a href="https://www.honeybadger.io/blog/data-and-end-in-ruby/">Mixing code and data in Ruby</a>
+</p>
+</section>
+<section id="slide-org60b7894">
+<h3 id="org60b7894">PSA: PHP can do it as well</h3>
+<div class="org-src-container">
+
+<pre><code class=" php" >// open self
+$fp = fopen(__FILE__, 'rb');
+// seek file pointer to data
+//__COMPILER_HALT_OFFSET__ will return
+//the point after __halt_compiler();
+fseek($fp, __COMPILER_HALT_OFFSET__);
+// and output it
+$unpacked = gzinflate(stream_get_contents($fp));
+__halt_compiler();
+//now here... all the binary gzdeflate already items!!!
+</code></pre>
+</div>
+
+<p>
+Source: <a href="https://www.php.net/manual/en/function.halt-compiler.php">PHP: __halt_compiler - Manual</a>
+Example: <a href="http://web.archive.org/web/20101012214224/http://mgccl.com/2007/01/04/halt-compiler-make-install-files-for-php-smaller">__halt_compiler(), make install files for PHP smaller</a>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org5b8a4c6">
+<h2 id="org5b8a4c6">Bundler inline</h2>
+<p>
+Fun fact: You don't need a <code>Gemfile</code> to use bundler!
+</p>
+
+<p>
+Useful for scripts in your <code>/utils</code> folder that you only use once a year.
+</p>
+
+<p>
+Source: <a href="https://bundler.io/guides/bundler_in_a_single_file_ruby_script.html">How to use Bundler in a single-file Ruby script</a>
+</p>
+</section>
+<section id="slide-org654855d">
+<h3 id="org654855d">Inline HTTParty</h3>
+<div class="org-src-container">
+
+<pre><code class=" ruby" >require 'bundler/inline'
+
+gemfile do
+  gem 'httparty'
+end
+
+puts HTTParty.get('https://www.boredapi.com/api/activity')
+</code></pre>
+</div>
+</section>
+<section id="slide-orga373404">
+<h3 id="orga373404">Inline Minitest</h3>
+<div class="org-src-container">
+
+<pre><code class=" ruby" >require 'bundler/inline'
+
+gemfile do
+  gem 'minitest', require: false
+end
+
+require 'minitest/autorun'
+
+class MyTest &lt; Minitest::Test
+  def test_should_be_true
+    assert_equal true, true
+  end
+end
+</code></pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orge935090">
+<h2 id="orge935090">Advanced Example: Download iCal to org</h2>
+<ul>
+<li class="fragment appear">Install Dependencies</li>
+<li class="fragment appear">Do stuff (download calendar events)</li>
+<li class="fragment appear">Render to ERb template</li>
+
+</ul>
+
+<p>
+Source: <a href="https://github.com/defsrc/ical-to-org/blob/master/ical_to_org.rb">ical_to_org.rb</a>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org00d9e82">
+<h2 id="org00d9e82"><code>BEGIN</code> and <code>END</code> Keywords</h2>
+<p>
+Yes, this is taken from Perl as well.
+</p>
+
+</section>
+<section id="slide-org44faafe">
+<h3 id="org44faafe">Definition</h3>
+<blockquote>
+<p>
+BEGIN defines a block that is run before any other code in the current file. It is typically used in one-liners with ruby -e.
+</p>
+
+<p>
+Similarly END defines a block that is run after any other code.
+</p>
+</blockquote>
+
+<p>
+Source: <a href="https://docs.ruby-lang.org/en/2.2.0/syntax/miscellaneous_rdoc.html#label-BEGIN+and+END">Documentation for Ruby 2.2.0</a>
+</p>
+</section>
+<section id="slide-org493c38c">
+<h3 id="org493c38c">Example</h3>
+<div class="org-src-container">
+
+<pre><code class=" ruby" >END { puts 3 }
+BEGIN { puts 1 }
+puts 2
+</code></pre>
+</div>
+
+<div class="org-src-container">
+
+<pre><code class=" sh" >ruby begin.rb
+1
+2
+3
+</code></pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgc7856c8">
+<h2 id="orgc7856c8">Introducing LRuby</h2>
+<p>
+Logging Ruby - The Ruby alias for the forgetful scripter
+Logging Ruby!
+</p>
+
+<p>
+Only Feature:
+No more scrolling through your terminal&#x2026;
+Logs the output of a script to the script itself!
+</p>
+</section>
+<section id="slide-org71d1df4">
+<h3 id="org71d1df4">Let's try this out</h3>
+<div class="org-src-container">
+
+<pre><code class=" sh" >cat log_results/hello_world.rb
+</code></pre>
+</div>
+
+<div class="org-src-container">
+
+<pre><code class=" sh" >ruby log_results/hello_world.rb
+</code></pre>
+</div>
+
+</section>
+<section id="slide-org26b8dfe">
+<h3 id="org26b8dfe">Introducing: LRuby</h3>
+<div class="org-src-container">
+
+<pre><code class=" sh" >lruby log_results/hello_world.rb
+</code></pre>
+</div>
+
+<div class="org-src-container">
+
+<pre><code class=" sh" >cat log_results/hello_world.rb
+</code></pre>
+</div>
+</section>
+<section id="slide-orga47d0a5">
+<h3 id="orga47d0a5">How does it work?</h3>
+<div class="org-src-container">
+
+<pre><code class=" sh" >which lruby
+</code></pre>
+</div>
+
+<p>
+Let's check out the source of <a href="lruby.rb#MissingReference">LRuby lruby.rb</a>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org7875cc1">
+<h2 id="org7875cc1">The Garbage Flag</h2>
+<p>
+Aaaaand back to Perl!
+</p>
+</section>
+<section id="slide-org3ef8640">
+<h3 id="org3ef8640">Perlrun</h3>
+<div class="org-src-container">
+
+<pre><code class=" sh" >perl -x
+</code></pre>
+</div>
+
+<blockquote>
+<p>
+Leading garbage will be discarded until the first line that starts with #! and contains the string "perl".
+</p>
+</blockquote>
+
+<p>
+Source: <a href="https://perldoc.perl.org/perlrun.html">perlrun - perldoc.perl.org</a>
+</p>
+</section>
+<section id="slide-orgfaf307e">
+<h3 id="orgfaf307e">But&#x2026; Why?</h3>
+<blockquote>
+<p>
+Tells Perl that the program is embedded in a larger chunk of unrelated text, such as in a <b>mail message</b>.
+</p>
+</blockquote>
+</section>
+<section id="slide-org5c6e55a">
+<h3 id="org5c6e55a">And in Ruby..</h3>
+<div class="org-src-container">
+
+<pre><code class=" sh" >ruby -x
+</code></pre>
+</div>
+
+<blockquote>
+<p>
+Tells Ruby that the script is embedded in a message. Leading garbage will be discarded until the first that starts with "#!" and contains string "ruby".
+</p>
+</blockquote>
+
+<p>
+Source: <a href="https://ruby-doc.org/docs/ruby-doc-bundle/Manual/man-1.4/options.html">Ruby Docs Command line Options</a>
+</p>
+</section>
+<section id="slide-org2e25827">
+<h3 id="org2e25827">Example</h3>
+<div class="org-src-container">
+
+<pre><code class=" ruby" >Hello dear friend,
+this is a mail message. Please execute it with your ruby interpreter.
+
+Thanks,
+a random stranger
+#! hahaha this is ruby now
+puts "Hello World"
+</code></pre>
+</div>
+
+<div class="org-src-container">
+
+<pre><code class=" sh" >ruby -x email.eml
+</code></pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgf94bbf9">
+<h2 id="orgf94bbf9">A self-animating GIF</h2>
+<p>
+This is not an animated gif, but a gif that animates itself.
+</p>
+</section>
+<section id="slide-org70e7131">
+<h3 id="org70e7131">Let's talk about GIFs</h3>
+
+<div class="figure">
+<p><img src="./assets/bunny.gif" alt="bunny.gif" />
+</p>
+</div>
+</section>
+<section id="slide-org65181e0">
+<h4 id="org65181e0">A GIF file consists of blocks</h4>
+
+<div class="figure">
+<p><img src="./assets/gif_file_stream.gif" alt="gif_file_stream.gif" />
+</p>
+</div>
+</section>
+<section id="slide-orge849176">
+<h4 id="orge849176">Example</h4>
+
+<div class="figure">
+<p><img src="./assets/gif_file_stream2.png" alt="gif_file_stream2.png" />
+</p>
+</div>
+</section>
+<section id="slide-orgda35bfa">
+<h4 id="orgda35bfa">Terminator Byte</h4>
+<p>
+The trailer block indicates when you've reached the end of the file. It is always a byte with a value of <code>3B</code>.
+</p>
+
+<p>
+Source: <a href="http://giflib.sourceforge.net/whatsinagif/bits_and_bytes.html">What's In A GIF</a>
+</p>
+</section>
+<section id="slide-org22b24d9">
+<h3 id="org22b24d9">Soooo now we know that..</h3>
+<ul>
+<li class="fragment appear">GIFs are nice</li>
+<li class="fragment appear">GIFs always end with the same terminator byte</li>
+<li class="fragment appear">Ruby is nice</li>
+<li class="fragment appear">Ruby can start with a defined start line</li>
+<li class="fragment appear">Nice.</li>
+
+</ul>
+</section>
+<section id="slide-orgffaceab">
+<h3 id="orgffaceab">A self-animating GIF</h3>
+<p>
+This is not an animated gif, but a gif that animates itself.
+</p>
+
+<ul>
+<li class="fragment appear">One file</li>
+<li class="fragment appear">Upper half is a GIF</li>
+<li class="fragment appear">Lower half is Ruby code</li>
+<li class="fragment appear">File rewrites itself!</li>
+<li class="fragment appear">Profit!</li>
+
+</ul>
+</section>
+<section id="slide-org22c1b1f">
+<h3 id="org22c1b1f">Source Code</h3>
+<p>
+Let's check out the <a href="rbgif/rbgif.gif#!-&gt;let's go ruby!">rbgif.gif source code</a> together!
+</p>
+</section>
+<section id="slide-org08ae9fd">
+<h3 id="org08ae9fd">LIVE DEMO!</h3>
+<div class="org-src-container">
+
+<pre><code class=" sh" >while 1; do cd ~/Dropbox/slides/single-file-ruby-programs/rbgif; time ruby -x ./rbgif.gif; sleep 0.1; done
+</code></pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgd8eb393">
+<h2 id="orgd8eb393">One more thing&#x2026;</h2>
+<div class="org-src-container">
+
+<pre><code class=" sh" >#!/bin/sh
+
+echo This is bash
+i=12
+echo $i
+
+perl - $i &lt;&lt;'__HERE__'
+my $i = shift;
+print "This is perl\n";
+print ++$i . "\n";
+__HERE__
+
+echo This is bash again
+echo $i
+</code></pre>
+</div>
+
+<p>
+Source: <a href="https://www.perlmonks.org/?replies=1;displaytype=print;node_id=46168">perl script inside a shell script</a>
+</p>
+</section>
+<section id="slide-org94883ec">
+<h3 id="org94883ec">Perlmonks.org 2000 Testimonials</h3>
+<ul>
+<li class="fragment appear">"Ain't that fun?" - dchetlin</li>
+<li class="fragment appear">"It's strange and terrible and I'm not sure how to get something out of the perl part, but this sort of works" - eg</li>
+<li class="fragment appear">"This, on the other hand is just &#x2026; just .. well, I don't know. Not right. Not even wrong. It just is." - Blue</li>
+
+</ul>
+</section>
+</section>
+<section>
+<section id="slide-org6d199a9">
+<h2 id="org6d199a9">Summary</h2>
+<div class="outline-text-2" id="text-org6d199a9">
+</div>
+</section>
+<section id="slide-org3cb197b">
+<h3 id="org3cb197b">Ruby is fun!</h3>
+</section>
+<section id="slide-org46afbd1">
+<h3 id="org46afbd1">Single File Ruby Programs</h3>
+<ul>
+<li>Code &amp; Tests</li>
+<li>Dependencies &amp; Code</li>
+<li>Data &amp; Code</li>
+<li>Code &amp; Data</li>
+<li>Code &amp; Output</li>
+
+</ul>
+
+<p>
+Try it out for fun and profit!
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org3f7b23f">
+<h2 id="org3f7b23f">Thanks!</h2>
+<p>
+Questions?
+</p>
+
+<p>
+Christian Bäuerlein
+<a href="https://twitter.com/fabrik42">@fabrik42</a>
+</p>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js-3.8.0/lib/js/head.min.js"></script>
+<script src="./reveal.js-3.8.0/js/reveal.js"></script>
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: true,
+keyboard: true,
+mouseWheel: false,
+fragmentInURL: false,
+hashOneBasedIndex: false,
+pdfSeparateFragments: true,
+
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'fade', // see README of reveal.js for options
+transitionSpeed: 'default',
+
+// Optional libraries used to extend reveal.js
+dependencies: [
+ { src: './reveal.js-3.8.0/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js-3.8.0/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+ { src: './reveal.js-3.8.0/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js-3.8.0/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } }]
+
+});
+</script>
+</body>
+</html>

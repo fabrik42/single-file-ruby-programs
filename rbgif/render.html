@@ -1,0 +1,11 @@
+<html>
+  <body>
+    <img src="./rbgif.gif"/>
+    <script>
+     var img = document.images[0];
+     setInterval(function() {
+       img.src = "./rbgif.gif?v=" + Date.now() + Math.random();
+     }, 100)
+    </script>
+  </body>
+</html>
