@@ -464,6 +464,8 @@ Christian Bäuerlein
 - HTML docs and code in one file?
 - Awesome ascii art readme
 ** Links
+- Actually, BEGIN/END is taken from AWK: [[https://tomayko.com/blog/2011/awkward-ruby][AWK-ward Ruby]]
+- duct is a predecessor of =bundler/inline= [[https://github.com/porras/duct][porras/duct: Duct allows you to embed a Gemfile in a single file script]]
 - [[https://ruby-doc.org/docs/ruby-doc-bundle/Manual/man-1.4/variable.html#argv][Pre-defined variables and constants]]
 - [[https://docs.ruby-lang.org/en/2.2.0/keywords_rdoc.html][keywords - Documentation for Ruby 2.2.0]]
 - [[https://idiosyncratic-ruby.com/5-constant-shadows.html][Idiosyncratic Ruby: Constant Shadows]]
