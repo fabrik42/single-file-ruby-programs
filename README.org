@@ -3,8 +3,9 @@ A loose collection of Ruby fun facts and examples  to organize your code in a 
 
 Slides and assets for the talk I gave in 2020.
 ** Slides
-- First iteration at Ruby Frankfurt: [[https://speakerdeck.com/fabrik42/single-file-ruby-programs][Speaker Deck]] ([[https://github.com/fabrik42/single-file-ruby-programs/blob/master/Single%20File%20Ruby%20Programs.pdf][PDF]], [[https://www.youtube.com/watch?v=-n-sdy0TOpc][Video]])
+- Ruby Unconf 2023: [[https://speakerdeck.com/fabrik42/presentation-rubyunconf][Speaker Deck]] ([[https://speakerdeck.com/fabrik42/presentation-rubyunconf][PDF]])
 - Presentation 2.0 at Ruby User Group Berlin: [[https://speakerdeck.com/fabrik42/single-file-ruby-programs-2-dot-0][Speaker Deck]] [[https://github.com/fabrik42/single-file-ruby-programs/blob/master/keynote_slides/presentation_rug_b_20min.pdf][(PDF)]]
+- First iteration at Ruby Frankfurt: [[https://speakerdeck.com/fabrik42/single-file-ruby-programs][Speaker Deck]] ([[https://github.com/fabrik42/single-file-ruby-programs/blob/master/Single%20File%20Ruby%20Programs.pdf][PDF]], [[https://www.youtube.com/watch?v=-n-sdy0TOpc][Video]])
 ** Code examples
 - [[https://github.com/fabrik42/single-file-ruby-programs/tree/master/examples][Smaller code examples used in the talk]]
 - [[https://github.com/defsrc/ical-to-org][Download ical calendar data and convert it to an org-mode file]]

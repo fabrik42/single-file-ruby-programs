@@ -1,4 +1,5 @@
 BEGIN {
+  require 'stringio'
   $stdout = StringIO.new
 }
 

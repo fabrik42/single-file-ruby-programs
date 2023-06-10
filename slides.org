@@ -406,7 +406,7 @@ This is not an animated gif, but a gif that animates itself.
 Let's check out the [[file:rbgif/rbgif.gif::#!->let's go ruby!][rbgif.gif source code]] together!
 ** LIVE DEMO!
 #+begin_src sh
-while 1; do cd ~/Dropbox/slides/single-file-ruby-programs/rbgif; time ruby -x ./rbgif.gif; sleep 0.1; done
+while 1; do cd /users/fabrik42/desktop/single-file-ruby-programs/rbgif; time ruby -x ./rbgif.gif; sleep 0.1; done
 #+end_src
 * One more thing...
 #+begin_src sh
@@ -471,3 +471,5 @@ Christian Bäuerlein
 - [[https://idiosyncratic-ruby.com/5-constant-shadows.html][Idiosyncratic Ruby: Constant Shadows]]
 - [[https://idiosyncratic-ruby.com/22-literate-ruby.html][Idiosyncratic Ruby: Literate Ruby]]
 - [[https://www.perlmonks.org/?node_id=253886][perl -x to test while developing]]
+- [[https://greg.molnar.io/blog/a-single-file-rails-application/][A Single file Rails Application | Greg Molnar]]
+- [[https://fly.io/ruby-dispatch/single-file-rails-app/][Single File Rails Apps · Fly]]
